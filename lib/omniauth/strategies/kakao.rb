@@ -3,10 +3,6 @@ require 'omniauth-oauth2'
 module OmniAuth
   module Strategies
     class Kakao < OmniAuth::Strategies::OAuth2
-      DEFAULT_REDIRECT_PATH = "/oauth"
-
-      option :name, 'kakao'
-
       option :client_options, {
         :site => 'https://kauth.kakao.com',
         :authorize_path => '/oauth/authorize',
@@ -17,8 +13,7 @@ module OmniAuth
 
       info do
         {
-          'name' => raw_properties['nickname'],
-          'image' => raw_properties['thumbnail_image'],
+	  email: raw_info['kakao_acount']['email']
         }
       end
 
@@ -26,9 +21,13 @@ module OmniAuth
         {'properties' => raw_properties}
       end
 
+      def callback_url
+	 full_host + callback_path
+      end
+
       def initialize(app, *args, &block)
         super
-        options[:callback_path] = options[:redirect_path] || DEFAULT_REDIRECT_PATH
+        options[:callback_path] = options[:redirect_path] 
       end
 
       def callback_phase
@@ -45,7 +44,7 @@ module OmniAuth
 
     private
       def raw_info
-        @raw_info ||= access_token.get('https://kapi.kakao.com/v1/user/me', {}).parsed || {}
+        @raw_info ||= access_token.get('https://kapi.kakao.com/v2/user/me', {}).parsed || {}
       end
 
       def raw_properties
