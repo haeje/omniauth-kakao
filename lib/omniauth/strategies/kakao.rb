@@ -13,7 +13,7 @@ module OmniAuth
 
       info do
         {
-	  email: raw_info['kakao_acount']['email']
+	  email: raw_info.dig(:kakao_acount, :email)
         }
       end
 
